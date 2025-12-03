@@ -1,0 +1,78 @@
+/* About Section Styles */
+.about-section {
+  background-color: #0d0d0d;
+  color: #fff;
+  padding: 8rem 2rem;
+  font-family: 'Arial', sans-serif;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.section-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #aaa;
+  margin-bottom: 4rem;
+}
+
+/* Three-column grid for content */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  margin-bottom: 4rem;
+}
+
+.content-card {
+  background-color: transparent;
+  padding: 1.5rem;
+  border-radius: 10px;
+  transition: transform 0.3s ease;
+}
+
+.card-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.card-text {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #bbb;
+}
+
+/* Enter The Loop Button */
+.enter-loop-btn {
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: transparent;
+  border: 2px solid #55e6c1; /* Neon green border */
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.enter-loop-btn:hover {
+  background-color: #55e6c1;
+  color: #0d0d0d;
+  transform: scale(1.05);
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}

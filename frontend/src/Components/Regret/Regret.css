@@ -1,0 +1,117 @@
+.regret-page-container {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.regret-card-wrapper {
+    margin-top: 100px;
+    margin-bottom: 5rem;
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    /* max-height: 80vh; */
+}
+
+/* Base card styling for both views */
+.regret-card {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.card-heading {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+}
+
+/* Input and Button Styles */
+.regret-input {
+    width: 100%;
+    height: 150px;
+    background-color: #000;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 1rem;
+    font-size: 1rem;
+    border-radius: 10px;
+    resize: none;
+    transition: border-color 0.3s ease;
+}
+
+.regret-input::placeholder {
+    color: #777;
+}
+
+.regret-input:focus {
+    outline: none;
+    border-color: #55e6c1;
+}
+
+.regret-action-btn {
+    margin-top: 1.5rem;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: 2px solid #55e6c1;
+    background-color: transparent;
+    color: #55e6c1;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.regret-action-btn:hover {
+    background-color: #55e6c1;
+    color: #000;
+}
+
+/* Received View Styles */
+.received-regret {
+    background-color: #000;
+    border: 1px solid #55e6c1;
+    color: #fff;
+    padding: 2rem;
+    font-size: 1.2rem;
+    font-style: italic;
+    border-radius: 10px;
+    line-height: 1.6;
+}
+
+
+ .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+} 
+
+/* Brand/Logo */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff; 
+    flex-grow: 1;
+} 
+
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20; 
+    background-color: transparent;
+    color: #000000; 
+    padding: 1.5rem 2rem;
+    font-family: Arial, sans-serif;
+}  
