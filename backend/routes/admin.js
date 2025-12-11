@@ -8,13 +8,42 @@ router.get('/', function(req, res, next) {
    res.json({ message: "Admin API working 🚀" });
 });
 
-router.post('/regret',(req,res)=>{
-  console.log(req.body);
+// router.post('/regret',(req,res)=>{
+//   console.log(req.body);
   
-  adminHelper.storeRegret(req.body).then((response)=>{
-    res.json(response)
-  })
-})
+//   adminHelper.storeRegret(req.body).then((response)=>{
+//     res.json(response)
+//   })
+// })
+
+
+
+
+
+router.post('/regret', (req, res) => {
+  // expects req.body = { regret: "...", userId: "..." }
+  adminHelper.storeRegret(req.body)
+    .then((result) => {
+      return res.json({
+        status: true,
+        analysis: result.analysis,
+        recommendedRegret: result.recommendedRegret
+      });
+    })
+    .catch((err) => {
+      console.error('/regret error:', err);
+      return res.status(500).json({ status: false, message: 'Something went wrong' });
+    });
+});
+
+
+
+
+
+
+
+
+
 
 
 router.post('/signup',(req,res)=>{
