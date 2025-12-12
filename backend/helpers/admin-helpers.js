@@ -2,7 +2,7 @@ var db=require('../Config/connection')
 var collection=require('../Config/collections')
 const { response } = require('../app')
 var ObjectId=require('mongodb').ObjectId
-const axios = require('axios');
+const axios = require('axios');//ml implementation
 const bcrypt=require('bcrypt')
 
 
@@ -10,7 +10,7 @@ const bcrypt=require('bcrypt')
 
 
 
-
+//ml implementation
 // --- ML service caller ---
 async function analyzeRegretWithML(text) {
   try {
@@ -67,7 +67,7 @@ async function getSimilarRegret(regretsCollection, currentId, analysis) {
   // 5) nothing found
   return null;
 }
-
+//ml implementation
 
 
 
@@ -96,7 +96,7 @@ module.exports={
 
 
 
-
+//ml implementation
       storeRegret: (msg) => {
     return new Promise(async (resolve, reject) => {
       try {
@@ -149,7 +149,7 @@ module.exports={
       }
     });
   },
-
+//ml implementation
 
 
 

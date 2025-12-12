@@ -10,6 +10,25 @@ function Regret() {
     const [isSent,setIsSent]=useState(false);
     const [regret,setRegret]=useState();
     const [returnregret,setReturnregret]=useState();
+
+    //ml
+    //const [analysis, setAnalysis] = useState(null); //for advanced analyzis -helpfull in futer features implementation
+    //contains metadata in this format
+//     analysis: {
+//   emotionLabel: "Sadness",
+//   sentimentLabel: "Negative",
+//   sentimentScore: -0.98,
+//   category: "Personal choices",
+//   analyzedAt: "...",
+// }
+
+    // eg:create a section(below the receiving regret section,pro subscription needed) "unlock your regret mentality & score"
+    // then show like "Emotion: Sadness  
+    //                 Sentiment: Negative  
+    //                 Category: Family "
+    //ml
+
+
     const handleSubmit = (e)=>{
       e.preventDefault();
       console.log(regret);
@@ -17,7 +36,13 @@ function Regret() {
       axios.post('/regret',{regret,user},{ withCredentials: true }).then((response)=>{
         console.log(response.data);
         setIsSent(true)
-        setReturnregret(response.data)
+        // setReturnregret(response.data)
+
+
+        //ml
+        setReturnregret(response.data.recommendedRegret)
+        //ml
+
       })
     }
 
