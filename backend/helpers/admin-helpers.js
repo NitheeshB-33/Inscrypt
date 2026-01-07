@@ -21,6 +21,7 @@ async function analyzeRegretWithML(text) {
     console.error('ML service error:', err.message || err);
     // Fallback defaults so app continues to work if ML is down
     return {
+      safe: true,
       sentimentScore: 0,
       sentimentLabel: 'Neutral',
       emotionLabel: 'Unknown',
@@ -98,57 +99,82 @@ module.exports={
 
 //ml implementation
       storeRegret: (msg) => {
-    return new Promise(async (resolve, reject) => {
-      try {
-        const dbInstance = db.get();
-        const regretsCollection = dbInstance.collection(collection.MESSAGES);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const dbInstance = db.get();
+      const regretsCollection = dbInstance.collection(collection.MESSAGES);
+      const flaggedCollection = dbInstance.collection("flagged_regrets");
 
-        // Expect msg = { regret: "...", userId: "..." }
-        const regretText = msg.regret;
-        const userId = msg.userId;
+      const regretText = msg.regret;
+      const userId = msg.userId;
 
-        // 1) Insert the basic regret document
-        const insertResult = await regretsCollection.insertOne({
+      // ✅ STEP 1: CALL ML FIRST (toxicity + emotion)
+      const analysis = await analyzeRegretWithML(regretText);
+
+      // 🚨 STEP 2: BLOCK TOXIC CONTENT
+      if (analysis.safe === false) {
+
+        // store flagged regret separately (admin use)
+        await flaggedCollection.insertOne({
           userId: new ObjectId(userId),
-          regret: regretText,
-          createdAt: new Date()
+          regretText: regretText,
+          toxicityScore: analysis.toxicityScore,
+          toxicityType: analysis.toxicityType,
+          createdAt: new Date(),
+          status: "Pending Review"
         });
 
-        const insertedId = insertResult.insertedId;
-
-        // 2) Call ML service to analyze the regret
-        const analysis = await analyzeRegretWithML(regretText);
-
-        // 3) Update the same document with the returned analysis metadata
-        await regretsCollection.updateOne(
-          { _id: insertedId },
-          {
-            $set: {
-              sentimentScore: analysis.sentimentScore,
-              sentimentLabel: analysis.sentimentLabel,
-              emotionLabel: analysis.emotionLabel,
-              category: analysis.category,
-              analyzedAt: new Date(analysis.analyzedAt || Date.now())
-            }
-          }
-        );
-
-        // 4) Query for a similar regret based on analysis
-        const recommended = await getSimilarRegret(regretsCollection, insertedId, analysis);
-
-        // 5) Respond with analysis + recommended regret
-        resolve({
-          insertedId: insertedId,
-          analysis: analysis,
-          recommendedRegret: recommended
+        // stop everything here
+        return resolve({
+          blocked: true,
+          reason: analysis.toxicityType
         });
-
-      } catch (err) {
-        console.error('storeRegret error:', err);
-        reject(err);
       }
-    });
-  },
+
+      // ✅ STEP 3: INSERT SAFE REGRET
+      const insertResult = await regretsCollection.insertOne({
+        userId: new ObjectId(userId),
+        regret: regretText,
+        createdAt: new Date()
+      });
+
+      const insertedId = insertResult.insertedId;
+
+      // ✅ STEP 4: UPDATE ANALYSIS METADATA
+      await regretsCollection.updateOne(
+        { _id: insertedId },
+        {
+          $set: {
+            sentimentScore: analysis.sentimentScore,
+            sentimentLabel: analysis.sentimentLabel,
+            emotionLabel: analysis.emotionLabel,
+            category: analysis.category,
+            analyzedAt: new Date(analysis.analyzedAt || Date.now())
+          }
+        }
+      );
+
+      // ✅ STEP 5: FIND SIMILAR REGRET
+      const recommended = await getSimilarRegret(
+        regretsCollection,
+        insertedId,
+        analysis
+      );
+
+      // ✅ STEP 6: RETURN RESULT
+      resolve({
+        insertedId: insertedId,
+        analysis: analysis,
+        recommendedRegret: recommended
+      });
+
+    } catch (err) {
+      console.error("storeRegret error:", err);
+      reject(err);
+    }
+  });
+},
+
 //ml implementation
 
 

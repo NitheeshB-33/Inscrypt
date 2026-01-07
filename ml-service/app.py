@@ -5,6 +5,24 @@ import datetime
 import logging
 import os
 
+
+# Toxicity / moderation model
+toxicity_model = pipeline(
+    "text-classification",
+    model="unitary/toxic-bert",
+    top_k=1
+)
+
+def contains_violence_threat(text: str):
+    keywords = [
+        "attack", "kill", "hurt", "beat", "stab",
+        "shoot", "bomb", "destroy", "assault"
+    ]
+    lower = text.lower()
+    return any(word in lower for word in keywords)
+
+
+
 app = Flask(__name__)
 
 logging.basicConfig(level=logging.INFO)
@@ -88,48 +106,163 @@ def _extract_first_dict(o):
     return {}
 
 
+def check_toxicity(text: str):
+    """
+    Returns:
+      safe (bool)
+      toxicityScore (float)
+      toxicityType (str or None)
+    """
+    out = toxicity_model(text)
+    item = _extract_first_dict(out)
+
+    label = (item.get("label") or "").lower()
+    score = float(item.get("score", 0.0))
+
+    # toxic-bert labels: 'toxic' / 'non-toxic'
+    if label == "toxic" and score >= 0.85:
+        return False, score, "Toxic or abusive content"
+
+    return True, score, None
+
+
+
+# @app.route("/analyze", methods=["POST"])
+# def analyze():
+#     payload = request.get_json() or {}
+#     text = payload.get("text", "")
+#     if not text or not isinstance(text, str) or not text.strip():
+#         return jsonify({"error": "Text is required"}), 400
+
+#     try:
+
+#         safe, tox_score, tox_reason = check_toxicity(text)
+
+# # 🚨 EXTRA VIOLENCE CHECK (IMPORTANT)
+#         if safe and contains_violence_threat(text):
+#             return jsonify({
+#         "safe": False,
+#         "toxicityScore": 0.9,
+#         "toxicityType": "Violence or threat-related content",
+#         "message": "Content violates safety guidelines"
+#     })
+
+
+#         if not safe:
+#             logger.warning("Toxic content blocked. score=%.3f", tox_score)
+#             return jsonify({
+#                 "safe": False,
+#                 "toxicityScore": tox_score,
+#                 "toxicityType": tox_reason,
+#                 "message": "Content violates safety guidelines"
+#             })
+
+
+
+
+#         # 1) Sentiment
+#         s_out = sentiment_model(text)
+#         # sentiment_model usually returns a list like [{'label':'POSITIVE','score':...}]
+#         s_item = _extract_first_dict(s_out)
+#         raw_sent_label = s_item.get("label", "NEUTRAL")
+#         raw_sent_score = float(s_item.get("score", 0.0))
+#         sentiment_score, sentiment_label = normalize_sentiment(raw_sent_label, raw_sent_score)
+
+#         # 2) Emotion (defensive)
+#         e_out = emotion_model(text)  # top_k=5 so likely a list of dicts or nested
+#         e_item = _extract_first_dict(e_out)
+#         raw_emotion_label = e_item.get("label", "neutral")
+#         emotion_label = map_emotion(raw_emotion_label)
+
+#         # 3) Category (zero-shot)
+#         category = classify_category(text)
+
+#         result = {
+#             "safe": True,   # ✅ ADD THIS
+#             "sentimentScore": float(sentiment_score),
+#             "sentimentLabel": sentiment_label,
+#             "emotionLabel": emotion_label,
+#             "category": category,
+#             "analyzedAt": datetime.datetime.utcnow().isoformat() + "Z"
+#         }
+
+#         # Log minimal info for debugging
+#         logger.info("Analyzed text. sentiment=%s score=%.3f emotion=%s category=%s",
+#                     sentiment_label, sentiment_score, emotion_label, category)
+
+#         return jsonify(result)
+
+#     except Exception as exc:
+#         logger.exception("Error while analyzing")
+#         return jsonify({
+#             "safe": True,
+#             "sentimentScore": 0.0,
+#             "sentimentLabel": "Neutral",
+#             "emotionLabel": "Unknown",
+#             "category": "Personal choices",
+#             "analyzedAt": datetime.datetime.utcnow().isoformat() + "Z",
+#             "error": str(exc)
+#         }), 500
+
+
 @app.route("/analyze", methods=["POST"])
 def analyze():
     payload = request.get_json() or {}
     text = payload.get("text", "")
+
     if not text or not isinstance(text, str) or not text.strip():
-        return jsonify({"error": "Text is required"}), 400
+        return jsonify({"safe": False, "message": "Text is required"}), 400
+
+    # 🚨 GATE 1: VIOLENCE / THREAT CHECK (FIRST)
+    if contains_violence_threat(text):
+        return jsonify({
+            "safe": False,
+            "toxicityScore": 0.9,
+            "toxicityType": "Violence or threat-related content",
+            "message": "Content violates safety guidelines"
+        })
+
+    # 🚨 GATE 2: TOXIC LANGUAGE CHECK
+    safe, tox_score, tox_reason = check_toxicity(text)
+    if not safe:
+        return jsonify({
+            "safe": False,
+            "toxicityScore": tox_score,
+            "toxicityType": tox_reason,
+            "message": "Content violates safety guidelines"
+        })
 
     try:
-        # 1) Sentiment
+        # ✅ ONLY SAFE CONTENT REACHES HERE
+
         s_out = sentiment_model(text)
-        # sentiment_model usually returns a list like [{'label':'POSITIVE','score':...}]
         s_item = _extract_first_dict(s_out)
         raw_sent_label = s_item.get("label", "NEUTRAL")
         raw_sent_score = float(s_item.get("score", 0.0))
-        sentiment_score, sentiment_label = normalize_sentiment(raw_sent_label, raw_sent_score)
+        sentiment_score, sentiment_label = normalize_sentiment(
+            raw_sent_label, raw_sent_score
+        )
 
-        # 2) Emotion (defensive)
-        e_out = emotion_model(text)  # top_k=5 so likely a list of dicts or nested
+        e_out = emotion_model(text)
         e_item = _extract_first_dict(e_out)
         raw_emotion_label = e_item.get("label", "neutral")
         emotion_label = map_emotion(raw_emotion_label)
 
-        # 3) Category (zero-shot)
         category = classify_category(text)
 
-        result = {
+        return jsonify({
+            "safe": True,
             "sentimentScore": float(sentiment_score),
             "sentimentLabel": sentiment_label,
             "emotionLabel": emotion_label,
             "category": category,
             "analyzedAt": datetime.datetime.utcnow().isoformat() + "Z"
-        }
-
-        # Log minimal info for debugging
-        logger.info("Analyzed text. sentiment=%s score=%.3f emotion=%s category=%s",
-                    sentiment_label, sentiment_score, emotion_label, category)
-
-        return jsonify(result)
+        })
 
     except Exception as exc:
         logger.exception("Error while analyzing")
         return jsonify({
+            "safe": True,
             "sentimentScore": 0.0,
             "sentimentLabel": "Neutral",
             "emotionLabel": "Unknown",
@@ -137,6 +270,8 @@ def analyze():
             "analyzedAt": datetime.datetime.utcnow().isoformat() + "Z",
             "error": str(exc)
         }), 500
+
+
 
 
 if __name__ == "__main__":

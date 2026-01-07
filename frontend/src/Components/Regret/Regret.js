@@ -10,6 +10,7 @@ function Regret() {
     const [isSent,setIsSent]=useState(false);
     const [regret,setRegret]=useState();
     const [returnregret,setReturnregret]=useState();
+    const [blockedMessage, setBlockedMessage] = useState(null);
 
     //ml
     //const [analysis, setAnalysis] = useState(null); //for advanced analyzis -helpfull in futer features implementation
@@ -35,6 +36,21 @@ function Regret() {
       
       axios.post('/regret',{regret,user},{ withCredentials: true }).then((response)=>{
         console.log(response.data);
+
+
+      if (response.data.blocked) {
+  setBlockedMessage(response.data.message); // store reason
+  setReturnregret(null);                    // no regret to show
+  setIsSent(true);                          // switch to receive-view
+  return;
+}
+
+
+
+
+
+
+
         setIsSent(true)
         // setReturnregret(response.data)
 
@@ -81,11 +97,21 @@ function Regret() {
         <div className="regret-card receive-view">
             <h2 className="card-heading">You Have Received a Regret</h2>
             <div className="received-regret">
-                {returnregret?.regret}
-            </div>
-            <button className="regret-action-btn" onClick={handleFavourSubmit}>
-                Add to My Collection
-            </button>
+  {blockedMessage ? (
+    <p className="blocked-message">
+      {blockedMessage}
+    </p>
+  ) : (
+    returnregret?.regret
+  )}
+</div>
+
+            {!blockedMessage && (
+  <button className="regret-action-btn" onClick={handleFavourSubmit}>
+    Add to My Collection
+  </button>
+)}
+
         </div>
         ):( <div className="regret-card send-view">
             <h2 className="card-heading">Send Your Regret into the Void</h2>

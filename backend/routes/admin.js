@@ -20,21 +20,50 @@ router.get('/', function(req, res, next) {
 
 
 //ml implementation
-router.post('/regret', (req, res) => {
-  // expects req.body = { regret: "...", userId: "..." }
-  adminHelper.storeRegret(req.body)
-    .then((result) => {
+// router.post('/regret', (req, res) => {
+//   // expects req.body = { regret: "...", userId: "..." }
+//   adminHelper.storeRegret(req.body)
+//     .then((result) => {
+//       return res.json({
+//         status: true,
+//         analysis: result.analysis,
+//         recommendedRegret: result.recommendedRegret
+//       });
+//     })
+//     .catch((err) => {
+//       console.error('/regret error:', err);
+//       return res.status(500).json({ status: false, message: 'Something went wrong' });
+//     });
+// });
+router.post('/regret', async (req, res) => {
+  try {
+    const result = await adminHelper.storeRegret(req.body);
+
+    // 🚨 REQUIRED CHECK (Feature 3)
+    if (result.blocked) {
       return res.json({
-        status: true,
-        analysis: result.analysis,
-        recommendedRegret: result.recommendedRegret
+        status: false,
+        blocked: true,
+        message: "Your message contains harmful or inappropriate content. Please rephrase and try again."
       });
-    })
-    .catch((err) => {
-      console.error('/regret error:', err);
-      return res.status(500).json({ status: false, message: 'Something went wrong' });
+    }
+
+    // ✅ Normal successful flow
+    return res.json({
+      status: true,
+      analysis: result.analysis,
+      recommendedRegret: result.recommendedRegret
     });
+
+  } catch (err) {
+    console.error('/regret error:', err);
+    return res.status(500).json({
+      status: false,
+      message: 'Something went wrong'
+    });
+  }
 });
+
 //ml implementation
 
 
