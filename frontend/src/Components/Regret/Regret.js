@@ -11,6 +11,7 @@ function Regret() {
     const [regret,setRegret]=useState();
     const [returnregret,setReturnregret]=useState();
     const [blockedMessage, setBlockedMessage] = useState(null);
+    const [supportiveTip, setSupportiveTip] = useState(null);
 
     //ml
     //const [analysis, setAnalysis] = useState(null); //for advanced analyzis -helpfull in futer features implementation
@@ -42,6 +43,7 @@ function Regret() {
   setBlockedMessage(response.data.message); // store reason
   setReturnregret(null);                    // no regret to show
   setIsSent(true);                          // switch to receive-view
+  setSupportiveTip(response.data.supportiveTip);
   return;
 }
 
@@ -50,13 +52,15 @@ function Regret() {
 
 
 
-
+        //else case
         setIsSent(true)
         // setReturnregret(response.data)
 
 
         //ml
         setReturnregret(response.data.recommendedRegret)
+        setSupportiveTip(response.data.supportiveTip); // ✅ ADD THIS
+        setBlockedMessage(null);  
         //ml
 
       })
@@ -97,6 +101,12 @@ function Regret() {
         <div className="regret-card receive-view">
             <h2 className="card-heading">You Have Received a Regret</h2>
             <div className="received-regret">
+              {supportiveTip && (
+  <div className="supportive-tip">
+    💡 {supportiveTip}
+  </div>
+)}
+
   {blockedMessage ? (
     <p className="blocked-message">
       {blockedMessage}
@@ -111,6 +121,7 @@ function Regret() {
     Add to My Collection
   </button>
 )}
+    
 
         </div>
         ):( <div className="regret-card send-view">

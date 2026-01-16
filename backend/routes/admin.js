@@ -52,7 +52,8 @@ router.post('/regret', async (req, res) => {
     return res.json({
       status: true,
       analysis: result.analysis,
-      recommendedRegret: result.recommendedRegret
+      recommendedRegret: result.recommendedRegret,
+      supportiveTip: result.supportiveTip
     });
 
   } catch (err) {

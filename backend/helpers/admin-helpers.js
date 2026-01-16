@@ -73,6 +73,50 @@ async function getSimilarRegret(regretsCollection, currentId, analysis) {
 
 
 
+function generateSupportiveTip(analysis) {
+  const { emotionLabel, sentimentLabel, category, sentimentScore } = analysis;
+
+  // Strongly negative
+  if (sentimentScore <= -0.7) {
+    return "It seems you are going through a very difficult time. Talking to someone you trust or taking a small break may help you feel better.";
+  }
+
+  // Emotion-based tips
+  if (emotionLabel === "Sadness") {
+    return "Feeling sad is natural. Try doing something kind for yourself today or reach out to someone who cares about you.";
+  }
+
+  if (emotionLabel === "Fear") {
+    return "It looks like you are feeling anxious. Taking slow breaths and focusing on what you can control may help.";
+  }
+
+  if (emotionLabel === "Anger") {
+    return "Anger can be intense. Pausing for a moment and calming your mind may help you think more clearly.";
+  }
+
+  if (emotionLabel === "Guilt") {
+    return "Everyone makes mistakes. Learning from them and forgiving yourself is an important step forward.";
+  }
+
+  // Category-based fallback
+  if (category === "Education") {
+    return "Learning is a journey. Even small improvements today can lead to better results tomorrow.";
+  }
+
+  if (category === "Career") {
+    return "Career setbacks happen to many people. Reflecting on what you learned can help you grow.";
+  }
+
+  if (category === "Relationship") {
+    return "Relationships are complex. Honest communication and patience often help heal misunderstandings.";
+  }
+
+  // Default
+  return "Thank you for sharing. Writing down your feelings is a positive step toward understanding yourself better.";
+}
+
+//ml implementation
+
 
 
 
@@ -107,10 +151,11 @@ module.exports={
 
       const regretText = msg.regret;
       const userId = msg.userId;
+     
 
       // ✅ STEP 1: CALL ML FIRST (toxicity + emotion)
       const analysis = await analyzeRegretWithML(regretText);
-
+       const tip = generateSupportiveTip(analysis);
       // 🚨 STEP 2: BLOCK TOXIC CONTENT
       if (analysis.safe === false) {
 
@@ -165,7 +210,8 @@ module.exports={
       resolve({
         insertedId: insertedId,
         analysis: analysis,
-        recommendedRegret: recommended
+        recommendedRegret: recommended,
+        supportiveTip: tip
       });
 
     } catch (err) {
