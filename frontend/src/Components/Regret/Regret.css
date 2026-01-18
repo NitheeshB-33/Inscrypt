@@ -135,3 +135,28 @@
   color: #2c3e50;
   font-size: 14px;
 }
+
+
+.therapy-suggestion {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f3f8ff;
+  border-left: 4px solid #4a90e2;
+  border-radius: 6px;
+  color: #09cf44;
+  font-size: 14px;
+}
+
+
+.therapist-directory {
+  margin-top: 15px;
+  padding: 12px;
+  background: #f9fbff;
+  border-radius: 8px;
+  color: #13b977;
+}
+
+.therapist-card {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}

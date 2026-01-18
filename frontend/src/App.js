@@ -128,9 +128,15 @@ import SignupPage from './Pages/SignupPage';
 import LoginPage from './Pages/LoginPage';
 
 import { AuthContext } from './Context/AuthContext';
+import { AdminContext } from './Context/AdminContext';
+import TherapistsPage from './Pages/TherapistsPage';
+import AdminLoginPage from './Pages/AdminLoginPage';
+import AdminPage from './Pages/AdminPage';
+import ManagePage from './Pages/ManagePage';
 
 function App() {
   const { user } = useContext(AuthContext);
+  const {admin} = useContext(AdminContext)
 
   return (
     <Router>
@@ -139,11 +145,15 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={!user ? <SignupPage /> : <Navigate to="/" />} />
         <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
+        <Route path="/adminlogin" element={!admin ? <AdminLoginPage /> : <Navigate to="/admin" />} />
 
         {/* PROTECTED ROUTES */}
         <Route path="/operation" element={user ? <Operations /> : <Navigate to="/login" />} />
         <Route path="/regret" element={user ? <RegretPage /> : <Navigate to="/login" />} />
         <Route path="/favourite" element={user ? <FavouritePage /> : <Navigate to="/login" />} />
+        <Route path="/therapists" element={user ? <TherapistsPage /> : <Navigate to="/login" />} />
+        <Route path="/admin" element={admin ? <AdminPage /> : <Navigate to="/adminlogin" />} />
+        <Route path="/manage" element={admin ? <ManagePage /> : <Navigate to="/adminlogin" />} />
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />

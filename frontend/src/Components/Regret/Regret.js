@@ -12,6 +12,11 @@ function Regret() {
     const [returnregret,setReturnregret]=useState();
     const [blockedMessage, setBlockedMessage] = useState(null);
     const [supportiveTip, setSupportiveTip] = useState(null);
+    const [therapySuggestion, setTherapySuggestion] = useState(null);
+    // const [therapists, setTherapists] = useState([]);
+    // const [showTherapists, setShowTherapists] = useState(false);
+
+
 
     //ml
     //const [analysis, setAnalysis] = useState(null); //for advanced analyzis -helpfull in futer features implementation
@@ -60,7 +65,17 @@ function Regret() {
         //ml
         setReturnregret(response.data.recommendedRegret)
         setSupportiveTip(response.data.supportiveTip); // ✅ ADD THIS
+        setTherapySuggestion(response.data.therapySuggestion);
         setBlockedMessage(null);  
+
+//         if (response.data.highDistress) {
+//   axios.get('/therapists').then((res) => {
+//     setTherapists(res.data.therapists);
+//     setShowTherapists(true);
+//   });
+// }
+
+
         //ml
 
       })
@@ -106,6 +121,39 @@ function Regret() {
     💡 {supportiveTip}
   </div>
 )}
+
+  {therapySuggestion?.show && (
+  <div className="therapy-suggestion">
+    <h4>💙 Support Option</h4>
+    <p>{therapySuggestion.message}</p>
+
+    <button
+      className="regret-action-btn"
+      onClick={() => navigate("/therapists")}
+    >
+      View Professionals
+    </button>
+  </div>
+)}
+
+
+{/* {showTherapists && therapists.length > 0 && (
+  <div className="therapist-directory">
+    <h4>👩‍⚕️ Available Professionals</h4>
+
+    {therapists.map((t) => (
+      <div key={t._id} className="therapist-card">
+        <strong>{t.name}</strong>
+        <p>{t.qualification}</p>
+        <p>Specialization: {t.specialization.join(", ")}</p>
+        <p>Mode: {t.mode}</p>
+      </div>
+    ))}
+  </div>
+)} */}
+
+
+
 
   {blockedMessage ? (
     <p className="blocked-message">

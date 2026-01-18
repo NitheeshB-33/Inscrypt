@@ -115,6 +115,61 @@ function generateSupportiveTip(analysis) {
   return "Thank you for sharing. Writing down your feelings is a positive step toward understanding yourself better.";
 }
 
+
+
+
+function detectHighDistress(analysis, text) {
+  const score = analysis.sentimentScore;
+  const emotion = analysis.emotionLabel;
+
+  const distressKeywords = [
+    "hopeless",
+    "worthless",
+    "empty",
+    "broken",
+    "can't go on",
+    "overwhelmed",
+    "exhausted",
+    "drained",
+    "nothing matters",
+    "alone all the time"
+  ];
+
+  const keywordHit = distressKeywords.some(word =>
+    text.toLowerCase().includes(word)
+  );
+
+  // STRICT rules
+  if (score <= -0.85 && keywordHit) return true;
+
+  if (score <= -0.9 && ["Fear", "Guilt"].includes(emotion)) return true;
+
+  return false;
+}
+
+
+
+
+
+function generateTherapySuggestion() {
+  return {
+    show: true,
+    message:
+      "It looks like you may be going through a difficult emotional period. If you feel overwhelmed, you may consider talking to a qualified mental health professional. This is completely optional and only meant as support.",
+    resources: [
+      {
+        name: "Local Psychologist",
+        type: "Professional Therapy"
+      },
+      {
+        name: "Mental Health Helpline",
+        type: "Immediate Support"
+      }
+    ]
+  };
+}
+
+
 //ml implementation
 
 
@@ -206,12 +261,23 @@ module.exports={
         analysis
       );
 
+      const highDistress = detectHighDistress(analysis, regretText);
+
+
+        let therapySuggestion = null;
+        if (highDistress) {
+         therapySuggestion = generateTherapySuggestion();
+      }
+
+
       // ✅ STEP 6: RETURN RESULT
       resolve({
         insertedId: insertedId,
         analysis: analysis,
         recommendedRegret: recommended,
-        supportiveTip: tip
+        supportiveTip: tip,
+        highDistress: highDistress,
+        therapySuggestion: therapySuggestion
       });
 
     } catch (err) {
@@ -220,6 +286,27 @@ module.exports={
     }
   });
 },
+
+
+getActiveTherapists: () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const therapists = await db
+        .get()
+        .collection(collection.THERAPISTS_COLLECTION)
+        .find({ isActive: true })
+        .toArray();
+
+      resolve(therapists);
+    } catch (err) {
+      reject(err);
+    }
+  });
+},
+
+
+
+
 
 //ml implementation
 
@@ -297,8 +384,95 @@ module.exports={
                 resolve(result)
             })
         })
-     }
+     },
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     //admin part
+
+     doAdminLogin:(adminData)=>{
+
+        return new Promise(async(resolve,reject)=>{
+            let response={};
+            let admin=await db.get().collection(collection.ADMIN_COLLECTION).findOne({email:adminData.email})
+
+            if(admin){
+                if(adminData.password === admin.password){
+                    response.admin=admin;
+                    response.status=true;
+                    console.log("ADMIN LOGGED");
+                    resolve(response)
+                }else{
+                    console.log('incorrect password');
+                    resolve({status:false})
+                }
+            }else{
+                console.log("admin not found")
+                resolve({status:false})
+            }
+
+
+
+
+        })
+
+
+    },
+
+
+
+
+
+
+  addEvents:(data)=>{
+    return new Promise((resolve,reject)=>{
+      db.get().collection(collection.EVENT_COLLECTION).insertOne(data).then((response)=>{
+        resolve(response);
+      })
+    })
+  },
+
+  getEvents:()=>{
+    return new Promise((resolve,reject)=>{
+      db.get().collection(collection.EVENT_COLLECTION).find().sort({ _id: -1 }).toArray().then((events)=>{
+        console.log("added events",events);
+        resolve(events)
+        
+      })
+    })
+  },
+
+  getAllUsers:()=>{
+        return new Promise((resolve,reject)=>{
+            db.get().collection(collection.USER_COLLECTION).find().toArray().then((response)=>{
+                resolve(response)
+            })
+        })
+        
+},
+
+deleteUser:(userId)=>{
+    return new Promise((resolve,reject)=>{
+        db.get().collection(collection.USER_COLLECTION).deleteOne({_id:new ObjectId(userId)}).then((response)=>{
+            console.log(response)
+            resolve(response)
+        })
+    })
+},
 
 
 

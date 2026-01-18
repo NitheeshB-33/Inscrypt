@@ -53,7 +53,9 @@ router.post('/regret', async (req, res) => {
       status: true,
       analysis: result.analysis,
       recommendedRegret: result.recommendedRegret,
-      supportiveTip: result.supportiveTip
+      supportiveTip: result.supportiveTip,
+      highDistress: result.highDistress,
+      therapySuggestion: result.therapySuggestion
     });
 
   } catch (err) {
@@ -64,6 +66,21 @@ router.post('/regret', async (req, res) => {
     });
   }
 });
+
+
+
+router.get('/therapists', async (req, res) => {
+  try {
+    const therapists = await adminHelper.getActiveTherapists();
+    res.json({ status: true, therapists });
+  } catch (err) {
+    res.status(500).json({ status: false });
+  }
+});
+
+
+
+
 
 //ml implementation
 
@@ -139,6 +156,76 @@ router.post('/delete', (req, res) => {
       res.status(500).json({ success: false, message: "Deletion failed", error: err });
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+//admin part
+router.post('/adminLogin',(req,res)=>{
+  adminHelper.doAdminLogin(req.body).then((response)=>{
+    if(response.status){
+      res.json({message:"admin logged"})
+      console.log("successfully looged");
+      
+    }else{
+      res.status(400).json({ error: "invalid loggin"});
+    }
+  }).catch(err => res.status(500).json({ error: err.message }))
+})
+
+
+
+
+router.post('/addEvent',(req,res)=>{
+  console.log("new events", JSON.stringify(req.body, null, 2)); 
+  adminHelper.addEvents(req.body).then((response)=>{
+    res.json(response)
+  })
+})
+
+
+
+router.get('/getEvents',(req,res)=>{
+  adminHelper.getEvents().then((events)=>{
+    res.json(events);
+  })
+})
+
+
+
+
+
+
+
+
+
+
+router.get('/all-users',(req,res)=>{
+  adminHelper.getAllUsers().then((response)=>{
+    res.json(response)
+  })
+})
+
+router.post('/deleteUser',(req,res)=>{
+   const { userId } = req.body;
+  adminHelper.deleteUser(userId).then((response)=>{
+    res.json(response)
+  })
+})
+
+
+
+
+
 
 
 

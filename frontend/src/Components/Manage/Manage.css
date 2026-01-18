@@ -1,0 +1,76 @@
+.admin-section {
+  background-color: #b12828f0;
+  width: 100%;
+  padding-top: 250px;
+  padding-bottom: 250px;
+}
+
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  margin-top: 40px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 12px 16px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.admin-table th {
+  background-color: #e0dede;
+  font-weight: bold;
+}
+
+.ban-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.ban-button:hover {
+  background-color: #c82333;
+}
+
+
+
+ .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+} 
+
+/* Brand/Logo */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff; 
+    flex-grow: 1;
+} 
+
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20; 
+    background-color: transparent;
+    color: #000000; 
+    padding: 1.5rem 2rem;
+    font-family: Arial, sans-serif;
+}  
+
+
