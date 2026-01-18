@@ -185,35 +185,50 @@ router.post('/adminLogin',(req,res)=>{
 
 
 
-router.post('/addEvent',(req,res)=>{
-  console.log("new events", JSON.stringify(req.body, null, 2)); 
-  adminHelper.addEvents(req.body).then((response)=>{
-    res.json(response)
-  })
-})
-
-
-
-router.get('/getEvents',(req,res)=>{
-  adminHelper.getEvents().then((events)=>{
-    res.json(events);
-  })
-})
 
 
 
 
 
 
+// Get all therapists
+router.get('/admin/therapists', async (req, res) => {
+  const therapists = await adminHelper.getAllTherapists();
+  res.json(therapists);
+});
+
+// Enable / Disable therapist
+router.post('/admin/therapist-status', async (req, res) => {
+  const { therapistId, isActive } = req.body;
+  await adminHelper.toggleTherapistStatus(therapistId, isActive);
+  res.json({ status: true });
+});
+
+// Add therapist
+router.post('/admin/add-therapist', async (req, res) => {
+  await adminHelper.addTherapist(req.body);
+  res.json({ status: true });
+});
 
 
 
 
-router.get('/all-users',(req,res)=>{
-  adminHelper.getAllUsers().then((response)=>{
-    res.json(response)
-  })
-})
+
+
+// router.get('/all-users',(req,res)=>{
+//   adminHelper.getAllUsers().then((response)=>{
+//     res.json(response)
+//   })
+// })
+router.get('/all-users', async (req, res) => {
+  try {
+    const users = await adminHelper.getAllUsersWithFlagCount();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
 
 router.post('/deleteUser',(req,res)=>{
    const { userId } = req.body;
@@ -223,7 +238,24 @@ router.post('/deleteUser',(req,res)=>{
 })
 
 
+router.get('/admin-dashboard', async (req, res) => {
+  try {
+    const data = await adminHelper.getAdminAnalytics();
+    res.json({ status: true, data });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: false });
+  }
+});
 
+router.get('/all-flagged', async (req, res) => {
+  try {
+    const flagged = await adminHelper.getAllFlaggedRegrets();
+    res.json(flagged);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch flagged regrets" });
+  }
+});
 
 
 

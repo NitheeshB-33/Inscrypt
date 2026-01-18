@@ -133,6 +133,8 @@ import TherapistsPage from './Pages/TherapistsPage';
 import AdminLoginPage from './Pages/AdminLoginPage';
 import AdminPage from './Pages/AdminPage';
 import ManagePage from './Pages/ManagePage';
+import AdminTherapistsPage from './Pages/AdminTherapistsPage';
+import AdvancedPage from './Pages/AdvancedPage';
 
 function App() {
   const { user } = useContext(AuthContext);
@@ -154,6 +156,8 @@ function App() {
         <Route path="/therapists" element={user ? <TherapistsPage /> : <Navigate to="/login" />} />
         <Route path="/admin" element={admin ? <AdminPage /> : <Navigate to="/adminlogin" />} />
         <Route path="/manage" element={admin ? <ManagePage /> : <Navigate to="/adminlogin" />} />
+        <Route path="/add" element={admin ? <AdminTherapistsPage /> : <Navigate to="/adminlogin" />} />
+        <Route path="/advanced" element={admin ? <AdvancedPage /> : <Navigate to="/adminlogin" />} />
 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />

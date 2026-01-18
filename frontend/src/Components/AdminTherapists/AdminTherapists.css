@@ -1,0 +1,74 @@
+.admin-therapists {
+  padding: 30px;
+}
+
+.add-box input {
+  margin: 5px;
+  padding: 6px;
+}
+
+.add-box button {
+  margin: 5px;
+  padding: 6px 12px;
+}
+
+table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+
+
+ .navbar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+} 
+
+/* Brand/Logo */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #fff; 
+    flex-grow: 1;
+} 
+
+.navbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 20; 
+    background-color: transparent;
+    color: #000000; 
+    padding: 1.5rem 2rem;
+    font-family: Arial, sans-serif;
+}  
+
+.admin-therapists,
+.admin-section {
+  padding-top: 90px;
+}
+
+
+/* ===== Navbar visibility fix ONLY for admin pages ===== */
+
+.admin-therapists .navbar,
+.admin-section .navbar {
+  background-color: #000;   /* visible background */
+}
+
+.admin-therapists .navbar-brand,
+.admin-section .navbar-brand {
+  color: #fff;              /* readable text */
+}
+

@@ -1,0 +1,29 @@
+.regret-text {
+  max-width: 300px;
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: #ffffff;
+}
+
+.admin-table th {
+  background: #f4f6f9;
+}
+
+.admin-table td {
+  vertical-align: top;
+}
+
+
+
+.ban-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.ban-button:hover {
+  background-color: #c82333;
+}

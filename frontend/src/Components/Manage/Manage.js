@@ -39,6 +39,7 @@ function Manage() {
               <th>EMAIL</th>
               <th>PHONE</th>
               <th>PASSWORD</th>
+              <th>FLAGGED COUNT</th>
               <th>OPTIONS</th>
             </tr>
           </thead>
@@ -50,6 +51,10 @@ function Manage() {
                 <td>{user.email}</td>
                 <td>{user.phone}</td>
                 <td>{user.password}</td>
+                <td style={{ textAlign: "center", fontWeight: "bold" }}>
+                {user.flaggedCount}
+                </td>
+
                 <td>
                   <button
                     className="ban-button"
@@ -62,7 +67,16 @@ function Manage() {
             ))}
           </tbody>
         </table>
+
+           
       </div>
+       <button
+                    className="ban-button" 
+                     style={{ display: 'block', margin: '0 auto', textAlign: 'center' }}
+                  onClick={()=>{navigate('/advanced')}}>
+                    ADVANCED
+                  </button>
+
     </section>
     </>
   );

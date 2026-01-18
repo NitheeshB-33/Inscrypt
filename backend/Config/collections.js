@@ -5,5 +5,5 @@ module.exports={
     FAVOURITES_COLLECTION:'favour',
     THERAPISTS_COLLECTION: "therapists",
     ADMIN_COLLECTION:'admin',
-
+    FLAGGED_COLLECTION: 'flagged_regrets' ,
 }

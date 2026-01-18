@@ -438,32 +438,79 @@ getActiveTherapists: () => {
 
 
 
-  addEvents:(data)=>{
-    return new Promise((resolve,reject)=>{
-      db.get().collection(collection.EVENT_COLLECTION).insertOne(data).then((response)=>{
-        resolve(response);
-      })
-    })
-  },
-
-  getEvents:()=>{
-    return new Promise((resolve,reject)=>{
-      db.get().collection(collection.EVENT_COLLECTION).find().sort({ _id: -1 }).toArray().then((events)=>{
-        console.log("added events",events);
-        resolve(events)
-        
-      })
-    })
-  },
-
-  getAllUsers:()=>{
-        return new Promise((resolve,reject)=>{
-            db.get().collection(collection.USER_COLLECTION).find().toArray().then((response)=>{
-                resolve(response)
-            })
-        })
-        
+  // Get all therapists (admin)
+getAllTherapists: async () => {
+  return await db
+    .get()
+    .collection(collection.THERAPISTS_COLLECTION)
+    .find()
+    .toArray();
 },
+
+// Toggle therapist active status
+toggleTherapistStatus: async (id, status) => {
+  return await db
+    .get()
+    .collection(collection.THERAPISTS_COLLECTION)
+    .updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { isActive: status } }
+    );
+},
+
+// Add new therapist
+addTherapist: async (data) => {
+  return await db
+    .get()
+    .collection(collection.THERAPISTS_COLLECTION)
+    .insertOne({
+      ...data,
+      isActive: true
+    });
+},
+
+
+//   getAllUsers:()=>{
+//         return new Promise((resolve,reject)=>{
+//             db.get().collection(collection.USER_COLLECTION).find().toArray().then((response)=>{
+//                 resolve(response)
+//             })
+//         })
+        
+// },
+getAllUsersWithFlagCount: () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const users = await db.get().collection(collection.USER_COLLECTION)
+        .aggregate([
+          {
+            $lookup: {
+              from: collection.FLAGGED_COLLECTION,
+              localField: "_id",
+              foreignField: "userId",
+              as: "flagged"
+            }
+          },
+          {
+            $addFields: {
+              flaggedCount: { $size: "$flagged" }
+            }
+          },
+          {
+            $project: {
+              flagged: 0   // ❌ remove large array, keep only count
+            }
+          }
+        ])
+        .toArray();
+
+      resolve(users);
+    } catch (err) {
+      reject(err);
+    }
+  });
+},
+
 
 deleteUser:(userId)=>{
     return new Promise((resolve,reject)=>{
@@ -472,6 +519,61 @@ deleteUser:(userId)=>{
             resolve(response)
         })
     })
+},
+
+
+
+getAdminAnalytics: async () => {
+  const dbInstance = db.get();
+
+  const totalUsers = await dbInstance
+    .collection(collection.USER_COLLECTION)
+    .countDocuments();
+
+  const totalRegrets = await dbInstance
+    .collection(collection.MESSAGES)
+    .countDocuments();
+
+  const emotionStats = await dbInstance
+    .collection(collection.MESSAGES)
+    .aggregate([
+      { $group: { _id: "$emotionLabel", count: { $sum: 1 } } }
+    ])
+    .toArray();
+
+  const sentimentStats = await dbInstance
+    .collection(collection.MESSAGES)
+    .aggregate([
+      { $group: { _id: "$sentimentLabel", count: { $sum: 1 } } }
+    ])
+    .toArray();
+
+  const highDistressCount = await dbInstance
+    .collection(collection.MESSAGES)
+    .countDocuments({ highDistress: true });
+
+  const flaggedCount = await dbInstance
+    .collection("flagged_regrets")
+    .countDocuments();
+
+  return {
+    totalUsers,
+    totalRegrets,
+    emotionStats,
+    sentimentStats,
+    highDistressCount,
+    flaggedCount
+  };
+},
+
+
+getAllFlaggedRegrets: async () => {
+  return await db
+    .get()
+    .collection(collection.FLAGGED_COLLECTION)
+    .find()
+    .sort({ createdAt: -1 })
+    .toArray();
 },
 
 
